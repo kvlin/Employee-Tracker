@@ -26,16 +26,22 @@ const staffList = ['None'];
 const getManager = () => {
     connection.query ('Select id, first_name, last_name FROM employees', (err, res) => {
         if (err) throw err;
-        let fullName = '';
-        res.forEach((staff) => {
-            fullname = staff.first_name.concat(' ', staff.last_name)
-            staffList.push(fullname)
-        })
+        let fullName = "";
+        console.log(res) // Good
+        staffList.splice(1);
+        console.log('stafflist bef for loop', staffList)
+        for(i=0; i<res.length; i++){
+            staffList.push( res[i].first_name.concat(' ', res[i].last_name))
+
+        }
+        console.log('After For Loop___', staffList)
+     
     })
 }
 // Task List: Add a staff
 const addStaff = () => {
     getManager()
+    console.log('beforeee----------',staffList)
     roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
     'Software Engineer', 'Accountant', 'Legal Team Lead',
     'Lawyer']    
@@ -59,6 +65,7 @@ const addStaff = () => {
         type: 'list'
     }
 ]).then((result) => {
+    console.log('then----------',staffList)
     // Get role id for the corresponding role selected
         let roleIndex = 0;
         for(i=0; i<roleList.length; i++) {
@@ -89,15 +96,15 @@ const addStaff = () => {
                     if (err) throw err;    
                 }
             ),
-            query =`UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) where  ?;`
-            connection.query(query,
-                {
-                    id : roleIndex
-                },
-                (err, res) => {
-                    if (err) throw err;    
-                }
-            ),
+            // query =`UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) where  ?;`
+            // connection.query(query,
+            //     {
+            //         id : roleIndex
+            //     },
+            //     (err, res) => {
+            //         if (err) throw err;    
+            //     }
+            // ),
             root()
         }
     )
@@ -114,18 +121,9 @@ const viewAll = () => {
     query += "LEFT JOIN employees as e2 ON e1.id = e2.manager_id "
     query += "LEFT JOIN department ON department.id = roles.department_id; "
     connection.query (query,
-    // console.table (
-    //     {
-    //         name: 'foo',
-    //         age: 10
-    //       }, {
-    //         name: 'bar',
-    //         age: 20
-    //       }
-    // )),
     (err, res) => {
         if (err) throw err;
-        console.table(res)
+        console.table('From View',res)
         console.log(res[0].first_name),
         root()
     }
