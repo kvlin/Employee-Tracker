@@ -21,7 +21,7 @@ connection.connect((err) => {
     
     init();
 });
-let staffList = [];
+const staffList = ['None'];
 // Obtain all staff for manager array
 const getManager = () => {
     connection.query ('Select id, first_name, last_name FROM employees', (err, res) => {
@@ -39,9 +39,6 @@ const addStaff = () => {
     roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
     'Software Engineer', 'Accountant', 'Legal Team Lead',
     'Lawyer']    
-    if (staffList.length < 1) {
-        staffList.push('None')
-    }
     inquirer.prompt ([{
         name: 'first_name',
         message: 'Please enter first name'
@@ -68,19 +65,15 @@ const addStaff = () => {
             if (roleList[i] === result.role ) {
                 roleIndex = i+1;
             }
+        }
             // Get staff's id for the corresponding manager selected
             let managerIndex = 0;
             // If no staff names available to choose, return null
-            if (staffList.length === 1) {
+            for (i=0; i<staffList.length; i++) {
+                if (result.manager === staffList[0]) {
                 managerIndex = null;
-            } else {
-                for(i=0; i<staffList.length; i++) {
-                    if (i === 1) {
-                        managerIndex = null;
-                    }
-                    if (staffList[i] === result.manager ) {
-                        managerIndex = i;
-                    }
+                } else if (result.manager === staffList[i]) {
+                    managerIndex = i;
                 }
             }
             // Query to add a new row with the new staff's details
@@ -98,9 +91,11 @@ const addStaff = () => {
             ),
             root()
         }
-        
-    })
-}
+    )
+}      
+
+
+
 
 // Task List: View all employees
 const viewAll = () => {
