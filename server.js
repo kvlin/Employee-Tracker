@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-
+const cTable = require('console.table');
 const connection = mysql.createConnection({
   host: 'localhost',
 
@@ -19,7 +19,7 @@ connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}\n`);
     
-
+    init();
 });
 let staffList = [];
 // Obtain all staff for manager array
@@ -33,14 +33,14 @@ const getManager = () => {
         })
     })
 }
-// // Task List: Add a staff
+// Task List: Add a staff
 const addStaff = () => {
     getManager()
     roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
     'Software Engineer', 'Accountant', 'Legal Team Lead',
     'Lawyer']    
     if (staffList.length < 1) {
-        staffList.push('No manager to assign, press "Enter" to continue')
+        staffList.push('None')
     }
     inquirer.prompt ([{
         name: 'first_name',
@@ -57,7 +57,7 @@ const addStaff = () => {
     },
     {
         name: 'manager',
-        message: 'Please select the employee&apos;s manager:',
+        message: 'Who is the employee&#39s manager:',
         choices: staffList,
         type: 'list'
     }
@@ -75,6 +75,9 @@ const addStaff = () => {
                 managerIndex = null;
             } else {
                 for(i=0; i<staffList.length; i++) {
+                    if (i === 1) {
+                        managerIndex = null;
+                    }
                     if (staffList[i] === result.manager ) {
                         managerIndex = i;
                     }
@@ -82,8 +85,6 @@ const addStaff = () => {
             }
             // Query to add a new row with the new staff's details
             let query = 'INSERT INTO employees SET ?';
-            console.log(result);
-            console.log(roleIndex);
             connection.query(query,
                 {
                 first_name: result.first_name,
@@ -101,10 +102,34 @@ const addStaff = () => {
     })
 }
 
+// Task List: View all employees
+const viewAll = () => {
+    connection.query ('SELECT * FROM employees',
+    // console.table (
+    //     {
+    //         name: 'foo',
+    //         age: 10
+    //       }, {
+    //         name: 'bar',
+    //         age: 20
+    //       }
+    // )),
+    (err, res) => {
+        if (err) throw err;
+        console.table(res)
+        console.log(res[0].first_name),
+        root()
+    }
+    
+    )
+    
+}
+
+
+// List of tasks that the application can do
 const taskList = ['Exit the application', 'Add a staff', 'View all employees', 'Update employee roles']
 
-
-// sample inquirer
+// Root inquirer questions asking the use what would like to do next.
 const root = () => {
     inquirer.prompt ([
         {
@@ -123,7 +148,7 @@ const root = () => {
                 addStaff()
                 break;
             case 'View all employees':
-                viewEmployees()
+                viewAll()
                 break;
             case 'Update employee roles':
                 updateRole()
@@ -134,9 +159,8 @@ const root = () => {
 //Root inquirer
 init = () => {
     root();
-    
 }   
-init();
+
 
 
 
