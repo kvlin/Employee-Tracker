@@ -92,7 +92,7 @@ const addStaff = () => {
             query =`UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) where  ?;`
             connection.query(query,
                 {
-                    id:roleIndex
+                    id : roleIndex
                 },
                 (err, res) => {
                     if (err) throw err;    
@@ -108,8 +108,11 @@ const addStaff = () => {
 
 // Task List: View all employees
 const viewAll = () => {
-    let query = "SELECT e1.id, e1.first_name, e1.last_name, e1.manager_id, roles.title, roles.salary, department.name, e2.manager FROM employees as e1 JOIN roles ON e1.role_id=roles.id LEFT JOIN employees as e2 ON e1.id = e2.manager_id LEFT JOIN department ON department.id = roles.department_id; select * from employees;"
-
+    let query = 'SELECT e1.id, e1.first_name, e1.last_name, roles.title, roles.salary, department.dep_name, e2.manager '
+    query += "FROM employees as e1 "
+    query += "JOIN roles ON e1.role_id=roles.id "
+    query += "LEFT JOIN employees as e2 ON e1.id = e2.manager_id "
+    query += "LEFT JOIN department ON department.id = roles.department_id; "
     connection.query (query,
     // console.table (
     //     {
