@@ -41,20 +41,20 @@ const addStaff = () => {
     'Lawyer']    
     inquirer.prompt ([{
         name: 'first_name',
-        message: 'Please enter first name'
+        message: 'Please enter first name:'
     },{
         name:'last_name',
-        message: 'Please enter last name'
+        message: 'Please enter last name:'
     },
     {
         name:'role',
-        message: 'What is the employee&apos;s role',
+        message: "What is the employee's role?",
         type: 'list',
         choices: roleList,
     },
     {
         name: 'manager',
-        message: 'Who is the employee&#39s manager:',
+        message: "Who is the employee's manager?",
         choices: staffList,
         type: 'list'
     }
@@ -89,6 +89,15 @@ const addStaff = () => {
                     if (err) throw err;    
                 }
             ),
+            query =`UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) where  ?;`
+            connection.query(query,
+                {
+                    id:roleIndex
+                },
+                (err, res) => {
+                    if (err) throw err;    
+                }
+            ),
             root()
         }
     )
@@ -99,7 +108,9 @@ const addStaff = () => {
 
 // Task List: View all employees
 const viewAll = () => {
-    connection.query ('SELECT * FROM employees',
+    let query = "SELECT e1.id, e1.first_name, e1.last_name, e1.manager_id, roles.title, roles.salary, department.name, e2.manager FROM employees as e1 JOIN roles ON e1.role_id=roles.id LEFT JOIN employees as e2 ON e1.id = e2.manager_id LEFT JOIN department ON department.id = roles.department_id; select * from employees;"
+
+    connection.query (query,
     // console.table (
     //     {
     //         name: 'foo',
