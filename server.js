@@ -23,7 +23,7 @@ connection.connect((err) => {
 });
 const staffList = ['None'];
 // Obtain all staff for manager array
-const getManager = () => {
+const getStaff = () => {
     connection.query ('Select id, first_name, last_name FROM employees', (err, res) => {
         if (err) throw err;
         let fullName = "";
@@ -40,7 +40,7 @@ const getManager = () => {
 }
 // Task List: Add a staff
 const addStaff = () => {
-    getManager()
+    getStaff()
     console.log('beforeee----------',staffList)
     roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
     'Software Engineer', 'Accountant', 'Legal Team Lead',
@@ -136,7 +136,55 @@ const viewAll = () => {
 }
 
 // Task List: update employees role.
+const updateRole = () => {
+    getStaff()
+    roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
+    'Software Engineer', 'Accountant', 'Legal Team Lead',
+    'Lawyer']   
 
+    setTimeout(function(){
+        inquirer.prompt ([
+        {
+            name: 'staff',
+            message: "Who's role would you like to update?",
+            choices: staffList,
+            type: 'list'
+        },
+        {
+            name: 'new_role',
+            message: 'What is the new role',
+            choices: roleList,
+            type: 'list'
+        }
+        ]).then ((result) => {
+            let roleIndex = 0;
+        for(i=0; i<roleList.length; i++) {
+            if (roleList[i] === result.new_role ) {
+                roleIndex = i+1;
+            }
+        }
+        
+        let staffID = staffList.indexOf(result.staff)
+        
+        const query = connection.query(
+        'UPDATE employees SET role_id = ? WHERE id = ?',
+        [
+            roleIndex,
+            staffID
+        ],
+        (err, res) => {
+            if (err) throw err;
+            console.log('sucess')
+        }, root()
+        );
+    
+        // logs the actual query being run
+        console.log(query.sql)
+        });
+    },30);
+    
+};
+  
 // List of tasks that the application can do
 const taskList = ['Exit the application', 'Add a staff', 'View all employees', 'Update employee roles']
 
