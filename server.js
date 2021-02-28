@@ -83,28 +83,27 @@ const addStaff = () => {
                     managerIndex = i;
                 }
             }
+            console.log('manager index to insert', managerIndex)
+            console.log('staff list before query insert', staffList)
+            console.log("manager:", result.manager)
+            console.log(result.first_name)
             // Query to add a new row with the new staff's details
             let query = 'INSERT INTO employees SET ?';
+            // query += ` UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) WHERE id =  ${roleIndex} `
             connection.query(query,
-                {
+               {
                 first_name: result.first_name,
                 last_name: result.last_name,
                 role_id: roleIndex,
                 manager_id: managerIndex,
+                manager: result.manager
                 },
+            
                 (err, res) => {
                     if (err) throw err;    
                 }
             ),
-            // query =`UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) where  ?;`
-            // connection.query(query,
-            //     {
-            //         id : roleIndex
-            //     },
-            //     (err, res) => {
-            //         if (err) throw err;    
-            //     }
-            // ),
+          
             root()
         }
     )
@@ -115,12 +114,16 @@ const addStaff = () => {
 
 // Task List: View all employees
 const viewAll = () => {
-    let query = 'SELECT e1.id, e1.first_name, e1.last_name, roles.title, roles.salary, department.dep_name, e2.manager '
-    query += "FROM employees as e1 "
-    query += "JOIN roles ON e1.role_id=roles.id "
-    query += "LEFT JOIN employees as e2 ON e1.id = e2.manager_id "
-    query += "LEFT JOIN department ON department.id = roles.department_id; "
+    let query =
+    `SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id, roles.title, roles.salary, department.dep_name, employees.manager  `
+    query += `FROM employees `
+    query += `JOIN roles ON employees.role_id=roles.id `
+
+
+    query += `LEFT JOIN department ON department.id = roles.department_id; `
+    
     connection.query (query,
+  
     (err, res) => {
         if (err) throw err;
         console.table('From View',res)
@@ -132,6 +135,7 @@ const viewAll = () => {
     
 }
 
+// Task List: update employees role.
 
 // List of tasks that the application can do
 const taskList = ['Exit the application', 'Add a staff', 'View all employees', 'Update employee roles']
