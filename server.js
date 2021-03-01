@@ -26,22 +26,15 @@ const staffList = ['None'];
 const getStaff = () => {
     connection.query ('Select id, first_name, last_name FROM employees', (err, res) => {
         if (err) throw err;
-        let fullName = "";
-        console.log(res) // Good
         staffList.splice(1);
-        console.log('stafflist bef for loop', staffList)
         for(i=0; i<res.length; i++){
             staffList.push( res[i].first_name.concat(' ', res[i].last_name))
-
         }
-        console.log('After For Loop___', staffList)
-     
     })
 }
 // Task List: Add a staff
 const addStaff = () => {
     getStaff()
-    console.log('beforeee----------',staffList)
     roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
     'Software Engineer', 'Accountant', 'Legal Team Lead',
     'Lawyer']    
@@ -65,7 +58,6 @@ const addStaff = () => {
         type: 'list'
     }
 ]).then((result) => {
-    console.log('then----------',staffList)
     // Get role id for the corresponding role selected
         let roleIndex = 0;
         for(i=0; i<roleList.length; i++) {
@@ -115,7 +107,7 @@ const addStaff = () => {
 // Task List: View all employees
 const viewAll = () => {
     let query =
-    `SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id, roles.title, roles.salary, department.dep_name, employees.manager  `
+    `SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, department.dep_name, employees.manager  `
     query += `FROM employees `
     query += `JOIN roles ON employees.role_id=roles.id `
 
