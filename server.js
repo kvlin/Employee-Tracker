@@ -75,13 +75,9 @@ const addStaff = () => {
                     managerIndex = i;
                 }
             }
-            console.log('manager index to insert', managerIndex)
-            console.log('staff list before query insert', staffList)
-            console.log("manager:", result.manager)
-            console.log(result.first_name)
+    
             // Query to add a new row with the new staff's details
             let query = 'INSERT INTO employees SET ?';
-            // query += ` UPDATE employees SET manager = CONCAT(employees.first_name, ' ',  employees.last_name) WHERE id =  ${roleIndex} `
             connection.query(query,
                {
                 first_name: result.first_name,
@@ -92,10 +88,11 @@ const addStaff = () => {
                 },
             
                 (err, res) => {
-                    if (err) throw err;    
+                    if (err) throw err; 
+                     
                 }
             ),
-          
+            console.log(result.first_name,'',result.last_name, ' is now added to the list!' ),
             root()
         }
     )
@@ -118,8 +115,7 @@ const viewAll = () => {
   
     (err, res) => {
         if (err) throw err;
-        console.table('From View',res)
-        console.log(res[0].first_name),
+        console.table(res);
         root()
     }
     
@@ -166,12 +162,10 @@ const updateRole = () => {
         ],
         (err, res) => {
             if (err) throw err;
-            console.log('sucess')
+            console.log('Role successfully updated!')
         }, root()
         );
     
-        // logs the actual query being run
-        console.log(query.sql)
         });
     },30);
     
@@ -190,7 +184,6 @@ const root = () => {
         type: 'list'
         }
     ]).then ((response) => {
-        console.log(response.task)
         switch (response.task) {
             case 'Exit the application':
                 connection.end()
