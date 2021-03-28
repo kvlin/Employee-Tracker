@@ -20,7 +20,7 @@
 <p>Install npm inquirer and mysql dependencies, and MySQL database before running.</p>
 <br>
 <h1>Usage</h1>
-<p>Demo video link: https://drive.google.com/file/d/1v051XB5RIt-TH4Yxtug3jUPX-Ibw56rx/view?usp=sharing</p>
+<p>Demo video link: https://drive.google.com/file/d/13EP-rDhZVGNBO7D3ex_CjSEh-m1jjmki/view?usp=sharing</p>
 <p></p>
 <br>
 <h1>Contributing</h1>

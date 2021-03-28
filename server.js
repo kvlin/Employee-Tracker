@@ -11,34 +11,59 @@ const connection = mysql.createConnection({
   user: 'root',
 
   // Be sure to update with your own MySQL password!
-  password: 'Mypassword',
+  password: 'pw',
   database: 'employee_db',
 });
 
 connection.connect((err) => {
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}\n`);
-    
     init();
 });
 const staffList = ['None'];
+const depList = ['None'];
+const roleList = []
 // Obtain all staff for manager array
 const getStaff = () => {
+    staffList.length = 0;
+    staffList.push("None")
     connection.query ('Select id, first_name, last_name FROM employees', (err, res) => {
         if (err) throw err;
         staffList.splice(1);
         for(i=0; i<res.length; i++){
             staffList.push( res[i].first_name.concat(' ', res[i].last_name))
         }
+        return staffList;
+    })
+}
+// Obtain all roles for role array
+const getRole = () => {
+    roleList.length = 0;
+    connection.query ('Select title FROM roles', (err, res) => {
+        if (err) throw err;
+        roleList.splice(1);
+        for(i=0; i<res.length; i++){
+            roleList.push(res[i].title)
+        }
+        return roleList;
+    })
+}
+// Obtain all departments for department array
+const getDepartment = () => {
+    connection.query ('Select dep_name FROM department', (err, res) => {
+        if (err) throw err;
+        depList.splice(1);
+        for(i=0; i<res.length; i++){
+            depList.push( res[i].dep_name)
+        }
     })
 }
 // Task List: Add a staff
 const addStaff = () => {
-    getStaff()
-    roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
-    'Software Engineer', 'Accountant', 'Legal Team Lead',
-    'Lawyer']    
-    inquirer.prompt ([{
+    getStaff()   
+    getRole()
+    setTimeout(function(){
+        inquirer.prompt ([{
         name: 'first_name',
         message: 'Please enter first name:'
     },{
@@ -95,10 +120,82 @@ const addStaff = () => {
             console.log(result.first_name,'',result.last_name, ' is now added to the list!' ),
             root()
         }
-    )
+    ), 30})
 }      
+// Add department
+const addDepartment = () => { 
+    inquirer.prompt ([
+    {
+        name: 'new_Department',
+        message: 'Please enter the name of the new department:'
+    }
+]).then((result) => {
+             // Query to add a new row with the new staff's details
+            let query = 'INSERT INTO department SET ?';
+            connection.query(query,
+               {
+                dep_name:result.new_Department
+                },
+            
+                (err, res) => {
+                    if (err) throw err; 
+                }
+            ),
+            console.log('Successfully added', result.new_Department, "department!" ),
+            root()
+        }
+    )
+}
 
-
+// Add role
+const addRole = () => {
+    getDepartment() 
+    setTimeout(function(){
+    inquirer.prompt ([
+    {
+        name: 'title',
+        message: 'Please enter role title:'
+    },{
+        name:'department',
+        message: "Which department does it belongs to?",
+        type: 'list',
+        choices: depList,
+    },
+    {
+        name:'salary',
+        message: 'Please enter the salary for the role:'
+    }
+]).then((result) => {
+            // Get staff's id for the corresponding manager selected
+            let depIndex = 0;
+            // If no staff names available to choose, return null
+            for (i=0; i<depList.length; i++) {
+                if (result.department === depList[0]) {
+                depIndex = null;
+                } else if (result.department === depList[i]) {
+                    depIndex = i;
+                }
+            }
+    
+            // Query to add a new row with the new staff's details
+            let query = 'INSERT INTO roles SET ?';
+            connection.query(query,
+               {
+                title: result.title,
+                salary: result.salary,
+                department_id: depIndex,
+                },
+            
+                (err, res) => {
+                    if (err) throw err; 
+                     
+                }
+            ),
+            console.log(`New role "${result.title}" added!`),
+            root()
+        }
+    ), 30});
+}      
 
 
 // Task List: View all employees
@@ -123,13 +220,12 @@ const viewAll = () => {
     
 }
 
+
 // Task List: update employees role.
 const updateRole = () => {
+    staffList.length = 0;
     getStaff()
-    roleList = ['Sales Lead', 'Salesperson', 'Lead Engineer',
-    'Software Engineer', 'Accountant', 'Legal Team Lead',
-    'Lawyer']   
-
+    getRole()
     setTimeout(function(){
         inquirer.prompt ([
         {
@@ -151,9 +247,7 @@ const updateRole = () => {
                 roleIndex = i+1;
             }
         }
-        
-        let staffID = staffList.indexOf(result.staff)
-        
+        let staffID = staffList.indexOf(result.staff);
         const query = connection.query(
         'UPDATE employees SET role_id = ? WHERE id = ?',
         [
@@ -167,12 +261,40 @@ const updateRole = () => {
         );
     
         });
-    },30);
+    },300);
     
 };
+// View all roles
+const viewRoles = () => {
+    let query =
+        `Select * FROM roles`
+    connection.query (query,
   
+    (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        root()
+    }
+    
+    )
+}
+
+// View all departments
+const viewDepartments = () => {
+    let query =
+        `Select * FROM department`
+    connection.query (query,
+  
+    (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        root()
+    }
+    
+    )
+}
 // List of tasks that the application can do
-const taskList = ['Exit the application', 'Add a staff', 'View all employees', 'Update employee roles']
+const taskList = ['Exit the application', 'Add new staff', 'Add new role', 'Add new department','View all staffs', 'View all roles', 'View all departments', 'Update staff roles']
 
 // Root inquirer questions asking the use what would like to do next.
 const root = () => {
@@ -188,15 +310,27 @@ const root = () => {
             case 'Exit the application':
                 connection.end()
                 break;
-            case 'Add a staff':
+            case 'Add new staff':
                 addStaff()
                 break;
-            case 'View all employees':
+            case 'View all staffs':
                 viewAll()
                 break;
-            case 'Update employee roles':
+            case 'Update staff roles':
                 updateRole()
                 break;
+            case 'Add new role':
+                addRole()
+                break;
+            case 'Add new department':
+                addDepartment()
+                break;
+            case 'View all roles':
+                viewRoles()
+                break;  
+            case 'View all departments':
+                viewDepartments()
+                break;             
         }
     })
 }
