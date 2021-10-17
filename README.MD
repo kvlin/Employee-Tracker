@@ -30,6 +30,6 @@
 <p>N/A
 <br>
 <h1>Questions</h1>
-<p><span>My Github profile: </span><a href="https://github.com/klin4994" class="col-12">https://github.com/klin4994</a></p>
+<p><span>My Github profile: </span><a href="https://github.com/klin4994" class="col-12">https://github.com/kvlin</a></p>
 <p><span>My Email address: </span><a href = "mailto: kevlin129@hotmail.com">kevlin129@hotmail.com</a></p>
 </p>
